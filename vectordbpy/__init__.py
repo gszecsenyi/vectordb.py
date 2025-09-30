@@ -8,18 +8,18 @@ from .vectordb import Document, MemoryVectorStore
 from .similarity import cosine_similarity_pure_python
 from .vectorizers import (
     BaseVectorizer,
-    TFIDFVectorizer, 
+    TFIDFVectorizer,
     BagOfWordsVectorizer,
     WordCountVectorizer
 )
 
 __version__ = "0.0.1"
 __all__ = [
-    "Document", 
-    "MemoryVectorStore", 
+    "Document",
+    "MemoryVectorStore",
     "cosine_similarity_pure_python",
     "BaseVectorizer",
     "TFIDFVectorizer",
-    "BagOfWordsVectorizer", 
+    "BagOfWordsVectorizer",
     "WordCountVectorizer"
 ]

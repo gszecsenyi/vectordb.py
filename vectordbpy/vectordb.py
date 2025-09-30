@@ -59,6 +59,34 @@ class MemoryVectorStore:
             # Create empty metadata for each existing document
             self.metadatas = [{}] * len(self.documents)
 
+    def _extract_texts_from_documents(self, documents):
+        """Extract text content from documents for vectorization."""
+        return [doc.page_content if isinstance(doc, Document) else str(doc) for doc in documents]
+
+    def _should_refit_vectorizer(self, all_texts):
+        """Check if vectorizer should be refitted due to new vocabulary."""
+        if not hasattr(self.vectorizer, 'is_fitted') or not self.vectorizer.is_fitted:
+            return True
+
+        # Check if new vocabulary would be created
+        old_vocab_size = len(self.vectorizer.vocabulary)
+
+        # Create a temporary vectorizer to check new vocabulary size
+        temp_vectorizer = type(self.vectorizer)()
+        temp_vectorizer.fit(all_texts)
+        new_vocab_size = len(temp_vectorizer.vocabulary)
+
+        return new_vocab_size > old_vocab_size
+
+    def _refit_vectorizer_and_update_vectors(self, all_texts):
+        """Refit vectorizer and update existing vectors."""
+        self.vectorizer.fit(all_texts)
+
+        # Re-vectorize existing documents if any
+        if self.documents:
+            existing_texts = self._extract_texts_from_documents(self.documents)
+            self.vectors = self.vectorizer.transform(existing_texts)
+
     def add_documents(self, documents, vectors=None, metadatas=None):
         """
         Add documents with their corresponding vectors to the store.
@@ -66,69 +94,28 @@ class MemoryVectorStore:
         Args:
             documents (list): List of Document objects to add.
             vectors (list, optional): List of vectors corresponding to the documents.
-                                    If None and vectorizer is set, vectors will be computed automatically.
+                                    If None and vectorizer is set, vectors will be computed.
             metadatas (list, optional): List of metadata objects. Defaults to None.
         """
         if vectors is None:
             if self.vectorizer is None:
                 raise ValueError("Either vectors must be provided or vectorizer must be set")
-            
+
             # Extract text content from documents for vectorization
-            texts = [doc.page_content if isinstance(doc, Document) else str(doc) for doc in documents]
-            
-            # Check if vectorizer needs fitting
-            if not hasattr(self.vectorizer, 'is_fitted') or not self.vectorizer.is_fitted:
-                # First time fitting - fit on all existing + new documents
-                all_texts = []
-                # Add existing document texts
-                for existing_doc in self.documents:
-                    if isinstance(existing_doc, Document):
-                        all_texts.append(existing_doc.page_content)
-                    else:
-                        all_texts.append(str(existing_doc))
-                # Add new document texts
-                all_texts.extend(texts)
-                
-                self.vectorizer.fit(all_texts)
-                
-                # Re-vectorize existing documents if any
-                if self.documents:
-                    existing_texts = [doc.page_content if isinstance(doc, Document) else str(doc) 
-                                    for doc in self.documents]
-                    self.vectors = self.vectorizer.transform(existing_texts)
-            else:
-                # Vectorizer is already fitted - check if we need to refit due to new vocabulary
-                all_texts = []
-                # Add existing document texts
-                for existing_doc in self.documents:
-                    if isinstance(existing_doc, Document):
-                        all_texts.append(existing_doc.page_content)
-                    else:
-                        all_texts.append(str(existing_doc))
-                # Add new document texts
-                all_texts.extend(texts)
-                
-                # Check if new vocabulary would be created
-                old_vocab_size = len(self.vectorizer.vocabulary)
-                
-                # Create a temporary vectorizer to check new vocabulary size
-                temp_vectorizer = type(self.vectorizer)()
-                temp_vectorizer.fit(all_texts)
-                new_vocab_size = len(temp_vectorizer.vocabulary)
-                
-                if new_vocab_size > old_vocab_size:
-                    # New vocabulary detected - refit the original vectorizer
-                    self.vectorizer.fit(all_texts)
-                    
-                    # Re-vectorize existing documents
-                    if self.documents:
-                        existing_texts = [doc.page_content if isinstance(doc, Document) else str(doc) 
-                                        for doc in self.documents]
-                        self.vectors = self.vectorizer.transform(existing_texts)
-            
+            texts = self._extract_texts_from_documents(documents)
+
+            # Prepare all texts (existing + new) for potential refitting
+            all_texts = []
+            all_texts.extend(self._extract_texts_from_documents(self.documents))
+            all_texts.extend(texts)
+
+            # Check if vectorizer needs fitting/refitting
+            if self._should_refit_vectorizer(all_texts):
+                self._refit_vectorizer_and_update_vectors(all_texts)
+
             # Vectorize new documents
             vectors = self.vectorizer.transform(texts)
-        
+
         if len(documents) != len(vectors):
             raise ValueError("Number of documents must match number of vectors")
 
@@ -153,13 +140,13 @@ class MemoryVectorStore:
         """
         if metadatas is None:
             metadatas = [{}] * len(texts)
-        
+
         if len(metadatas) != len(texts):
             raise ValueError("Number of metadatas must match number of texts")
-        
+
         # Convert texts to Document objects
         documents = [Document(text, metadata) for text, metadata in zip(texts, metadatas)]
-        
+
         # Add documents (this will automatically vectorize if vectorizer is set)
         self.add_documents(documents, vectors=None, metadatas=None)
 
@@ -196,12 +183,12 @@ class MemoryVectorStore:
         """
         if self.vectorizer is None:
             raise ValueError("Vectorizer must be set to query with text")
-        
+
         if not hasattr(self.vectorizer, 'is_fitted') or not self.vectorizer.is_fitted:
             raise ValueError("Vectorizer must be fitted before querying")
-        
+
         # Vectorize the query text
         query_vectors = self.vectorizer.transform([query_text])
         query_vector = query_vectors[0]
-        
+
         return self.query_vector(query_vector, k)
