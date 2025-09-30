@@ -1,9 +1,17 @@
-# package_name
+# vectordb.py package
 
-Description. 
-The package package_name is used to:
-	- 
-	-
+
+`vectordb.py` is a Python library that streamlines vector database operations. It is an in-memory solution, so all vectors and documents are stored in RAM during program execution. This makes it extremely fast and removes the need to run or maintain a persistent vector store (such as Pinecone, Weaviate, Milvus, etc.).
+
+It offers user-friendly APIs for storing, querying, and managing high-dimensional vectors, making it well-suited for machine learning, information retrieval, and AI-driven search applications.
+
+`vectordb.py` can also be used efficiently for promptflow queries, enabling fast and flexible retrieval in LLM and prompt engineering workflows.
+
+With `vectordb.py`, you can:
+- Efficiently store and organize large collections of vector data
+- Perform fast similarity searches and retrieve relevant results
+- Manage and update vector datasets with ease
+- Integrate vector search capabilities into your Python projects
 
 ## Installation
 
