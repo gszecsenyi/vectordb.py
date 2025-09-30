@@ -1,7 +1,8 @@
 """
 vectordbpy - In-memory vector database package
 
-This package provides an in-memory vector database solution for Python applications.
+This package provides an in-memory vector database solution for Python
+applications.
 """
 
 from .vectordb import Document, MemoryVectorStore

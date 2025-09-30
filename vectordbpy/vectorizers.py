@@ -75,7 +75,8 @@ class BaseVectorizer(ABC):
         Returns:
             List of tokens (words)
         """
-        # Simple tokenization: lowercase, remove non-alphanumeric, split on whitespace
+        # Simple tokenization: lowercase, remove non-alphanumeric,
+        # split on whitespace
         text = text.lower()
         text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
         tokens = text.split()
@@ -107,7 +108,8 @@ class WordCountVectorizer(BaseVectorizer):
             all_words.update(tokens)
 
         # Create vocabulary mapping word -> index
-        self.vocabulary = {word: idx for idx, word in enumerate(sorted(all_words))}
+        self.vocabulary = {word: idx for idx,
+                           word in enumerate(sorted(all_words))}
         self.is_fitted = True
         return self
 
@@ -153,7 +155,8 @@ class BagOfWordsVectorizer(BaseVectorizer):
         Initialize the Bag of Words vectorizer.
 
         Args:
-            binary: If True, use binary representation (0/1), otherwise use counts
+            binary: If True, use binary representation (0/1), otherwise use
+                counts
         """
         super().__init__()
         self.binary = binary
@@ -175,7 +178,8 @@ class BagOfWordsVectorizer(BaseVectorizer):
             all_words.update(tokens)
 
         # Create vocabulary mapping word -> index
-        self.vocabulary = {word: idx for idx, word in enumerate(sorted(all_words))}
+        self.vocabulary = {word: idx for idx,
+                           word in enumerate(sorted(all_words))}
         self.is_fitted = True
         return self
 
@@ -223,7 +227,8 @@ class TFIDFVectorizer(BaseVectorizer):
     Implements TF-IDF algorithm without external dependencies.
     TF-IDF = TF(term, doc) * IDF(term, corpus)
     where:
-    - TF = (number of times term appears in doc) / (total number of terms in doc)
+    - TF = (number of times term appears in doc) / (total number of terms
+      in doc)
     - IDF = log(total number of docs / number of docs containing term)
     """
 
@@ -233,7 +238,8 @@ class TFIDFVectorizer(BaseVectorizer):
 
         Args:
             use_idf: If True, use IDF weighting, otherwise just TF
-            smooth_idf: If True, add 1 to document frequencies to avoid division by zero
+            smooth_idf: If True, add 1 to document frequencies to avoid
+                division by zero
         """
         super().__init__()
         self.use_idf = use_idf
@@ -261,20 +267,23 @@ class TFIDFVectorizer(BaseVectorizer):
             doc_word_counts.append(set(tokens))
 
         # Create vocabulary mapping word -> index
-        self.vocabulary = {word: idx for idx, word in enumerate(sorted(all_words))}
+        self.vocabulary = {word: idx for idx,
+                           word in enumerate(sorted(all_words))}
         self.num_docs = len(documents)
 
         # Compute IDF values
         if self.use_idf:
             for word in self.vocabulary:
                 # Count documents containing this word
-                doc_freq = sum(1 for doc_words in doc_word_counts if word in doc_words)
+                doc_freq = sum(
+                    1 for doc_words in doc_word_counts if word in doc_words)
 
                 if self.smooth_idf:
                     # Add 1 to both numerator and denominator for smoothing
                     idf = math.log((self.num_docs + 1) / (doc_freq + 1))
                 else:
-                    idf = math.log(self.num_docs / doc_freq) if doc_freq > 0 else 0
+                    idf = math.log(self.num_docs /
+                                   doc_freq) if doc_freq > 0 else 0
 
                 self.idf_values[word] = idf
 
