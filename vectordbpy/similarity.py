@@ -2,16 +2,18 @@
 # Similarity functions for vector operations
 similarity.py
 
-This module provides similarity functions for vector operations, 
+This module provides similarity functions for vector operations,
 implemented without external libraries.
 
 Functions:
-    cosine_similarity_pure_python(v1, v2): Calculates the cosine similarity 
+    cosine_similarity_pure_python(v1, v2): Calculates the cosine similarity
     between two numeric vectors (lists).
 """
+
+
 def cosine_similarity_pure_python(v1, v2):
     """
-    Calculate cosine similarity between two lists (vectors) without external libraries.
+    Calculate cosine similarity between two lists (vectors) without libraries.
 
     Args:
         v1 (list of numbers): First vector.
@@ -21,8 +23,8 @@ def cosine_similarity_pure_python(v1, v2):
         float: Cosine similarity between v1 and v2.
 
     Notes:
-        If the vectors are of different lengths, calculation is performed up to the 
-        length of the shorter vector.
+        If the vectors are of different lengths, calculation is performed up
+        to the length of the shorter vector.
         If either vector is all zeros, returns 0.0.
     """
     dot = sum(a * b for a, b in zip(v1, v2))
