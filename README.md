@@ -17,11 +17,12 @@ With `vectordb.py`, you can:
 
 ## Supported Vectorization Models
 
-`vectordb.py` includes three popular vectorization models that work without any external dependencies:
+`vectordb.py` includes four powerful vectorization models that work without any external dependencies:
 
 1. **TF-IDF (Term Frequency-Inverse Document Frequency)**: Industry-standard text vectorization that weighs terms by their importance in documents vs. the entire corpus
 2. **Bag of Words**: Simple and effective word frequency-based vectorization with optional binary representation
 3. **Word Count**: Basic frequency counting vectorization for straightforward text analysis
+4. **Qwen Embedding (Qwen3-Embedding-0.6B style)**: Dense embedding vectorizer that simulates transformer-style embeddings with contextual information and positional encoding
 
 All vectorizers are implemented using only Python's standard library for maximum compatibility and minimal dependencies.
 
@@ -97,7 +98,8 @@ from vectordbpy import (
     MemoryVectorStore, 
     TFIDFVectorizer, 
     BagOfWordsVectorizer, 
-    WordCountVectorizer
+    WordCountVectorizer,
+    QwenEmbeddingVectorizer
 )
 
 # TF-IDF Vectorizer (recommended for most text applications)
@@ -109,16 +111,49 @@ bow_store = MemoryVectorStore(vectorizer=BagOfWordsVectorizer(binary=True))
 # Simple word count vectorizer
 wc_store = MemoryVectorStore(vectorizer=WordCountVectorizer())
 
+# Qwen Embedding Vectorizer (dense embeddings)
+qwen_store = MemoryVectorStore(vectorizer=QwenEmbeddingVectorizer(embedding_dim=512))
+
 # All can be used the same way
 texts = ["example text", "another document"]
 tfidf_store.add_texts(texts)
 bow_store.add_texts(texts)
 wc_store.add_texts(texts)
+qwen_store.add_texts(texts)
 
 # Query all stores
 results1 = tfidf_store.query_text("example", k=1)
 results2 = bow_store.query_text("example", k=1)
 results3 = wc_store.query_text("example", k=1)
+results4 = qwen_store.query_text("example", k=1)
+```
+
+### Dense Embeddings with Qwen Vectorizer
+
+```python
+from vectordbpy import MemoryVectorStore, QwenEmbeddingVectorizer
+
+# Create Qwen-style embedding vectorizer
+vectorizer = QwenEmbeddingVectorizer(embedding_dim=1024)
+store = MemoryVectorStore(vectorizer=vectorizer)
+
+# Add documents
+texts = [
+    "Machine learning is transforming technology",
+    "Natural language processing enables AI communication",
+    "Computer vision helps machines understand images"
+]
+
+store.add_texts(texts)
+
+# Query using dense embeddings
+results = store.query_text("artificial intelligence technology", k=2)
+
+for doc in results:
+    print(f"Result: {doc.page_content}")
+
+print(f"Vector dimension: {vectorizer.embedding_dim}")
+print(f"Vocabulary size: {len(vectorizer.vocabulary)}")
 ```
 
 ### Adding Documents with Metadata

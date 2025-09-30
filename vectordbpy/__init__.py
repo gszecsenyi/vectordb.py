@@ -11,7 +11,8 @@ from .vectorizers import (
     BaseVectorizer,
     TFIDFVectorizer,
     BagOfWordsVectorizer,
-    WordCountVectorizer
+    WordCountVectorizer,
+    QwenEmbeddingVectorizer
 )
 
 __version__ = "0.0.1"
@@ -22,5 +23,6 @@ __all__ = [
     "BaseVectorizer",
     "TFIDFVectorizer",
     "BagOfWordsVectorizer",
-    "WordCountVectorizer"
+    "WordCountVectorizer",
+    "QwenEmbeddingVectorizer"
 ]

@@ -2,8 +2,8 @@
 """
 Example usage of vectordb.py with automatic vectorization.
 
-This script demonstrates how to use the three vectorization models
-(TF-IDF, Bag of Words, and Word Count) with the vectordb.py library.
+This script demonstrates how to use the four vectorization models
+(TF-IDF, Bag of Words, Word Count, and Qwen Embedding) with the vectordb.py library.
 """
 
 from vectordbpy import (
@@ -11,6 +11,7 @@ from vectordbpy import (
     TFIDFVectorizer,
     BagOfWordsVectorizer,
     WordCountVectorizer,
+    QwenEmbeddingVectorizer,
     Document
 )
 
@@ -80,6 +81,23 @@ def main():
         print(f"  {i}. {doc.page_content}")
     print()
 
+    # Demonstrate Qwen Embedding Vectorizer
+    print("=== Qwen Embedding Vectorizer ===")
+    qwen_vectorizer = QwenEmbeddingVectorizer(embedding_dim=512)
+    qwen_store = MemoryVectorStore(vectorizer=qwen_vectorizer)
+    qwen_store.add_texts(documents)
+
+    query = "artificial intelligence"
+    results = qwen_store.query_text(query, k=3)
+    print(f"Query: '{query}'")
+    print("Top 3 results (dense embeddings):")
+    for i, doc in enumerate(results, 1):
+        print(f"  {i}. {doc.page_content}")
+    
+    print(f"Vector dimension: {qwen_vectorizer.embedding_dim}")
+    print(f"Vocabulary size: {len(qwen_vectorizer.vocabulary)}")
+    print()
+
     # Demonstrate adding documents with metadata
     print("=== Adding Documents with Metadata ===")
     store_with_metadata = MemoryVectorStore(vectorizer=TFIDFVectorizer())
@@ -106,7 +124,10 @@ def main():
     print(f"TF-IDF vocabulary: {sorted(list(tfidf_vectorizer.vocabulary.keys())[:10])}...")
     print(f"Bag of Words vocabulary: {sorted(list(bow_vectorizer.vocabulary.keys())[:10])}...")
     print(f"Word Count vocabulary: {sorted(list(wc_vectorizer.vocabulary.keys())[:10])}...")
+    print(f"Qwen Embedding vocabulary: {sorted(list(qwen_vectorizer.vocabulary.keys())[:10])}...")
     print("\nAll vectorizers produce the same vocabulary but different vector representations!")
+    print(f"Traditional vectorizers produce sparse vectors (vocab size: {len(tfidf_vectorizer.vocabulary)})")
+    print(f"Qwen Embedding produces dense vectors (fixed size: {qwen_vectorizer.embedding_dim})")
 
 
 if __name__ == "__main__":
