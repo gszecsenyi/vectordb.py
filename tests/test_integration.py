@@ -33,13 +33,14 @@ class TestPackageIntegration:
         """Test that __all__ is defined and contains expected exports."""
         assert hasattr(vectordbpy, '__all__')
         expected_exports = [
-            "Document", 
-            "MemoryVectorStore", 
+            "Document",
+            "MemoryVectorStore",
             "cosine_similarity_pure_python",
             "BaseVectorizer",
             "TFIDFVectorizer",
             "BagOfWordsVectorizer",
-            "WordCountVectorizer"
+            "WordCountVectorizer",
+            "QwenEmbeddingVectorizer"
         ]
         assert set(vectordbpy.__all__) == set(expected_exports)
 
